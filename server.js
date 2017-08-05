@@ -24,6 +24,8 @@ function createTimers() {
   setInterval(getStreetcar, 2000);
 }
 
+app.disable("x-powered-by");
+
 app.use("/", (req, res, next) => {
   knex("streetcars")
     .then((result) => {
