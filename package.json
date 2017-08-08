@@ -11,8 +11,11 @@
   "author": "Jacob Ulrich <julrich@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "knex": "^0.13.0",
+    "moment": "^2.18.1",
+    "morgan": "^1.8.2",
     "pg": "^7.0.2",
     "request": "^2.81.0"
   }

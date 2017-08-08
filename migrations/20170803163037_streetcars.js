@@ -5,6 +5,8 @@ exports.up = function(knex, Promise) {
     table.specificType("streetcar_id", "smallint").notNullable();
     table.specificType("route_id", "smallint").notNullable();
     table.specificType("location", "point");
+    table.specificType("heading", "smallint");
+    table.boolean("predictable");
     table.timestamps(true, true);
   });
 };
