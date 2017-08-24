@@ -16,8 +16,13 @@ const routesRouter = require("./routes/routes.js");
 
 const ROUTE_ID = 1; // Associate to "FHS"
 
+app.disable("x-powered-by");
+
 app.use(morgan("tiny"));
 app.use(bodyParser.json());
+
+// Sample query to insert new streetcar into DB
+// insert into streetcars values (DEFAULT, 500, 1, ST_GeographyFromText('SRID=4326;POINT(-122.320911 47.618008)'), 181, 't');
 
 // app.all("*", function(req, res, next) {
 //   // res.header("Access-Control-Allow-Origin", "*");
@@ -25,7 +30,6 @@ app.use(bodyParser.json());
 //   // res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
 //   return next();
 // });
-
 
 app.use(streetcarsRouter);
 app.use(routesRouter);
@@ -107,19 +111,6 @@ function getStreetcar() {
 function createTimers() {
   setInterval(getStreetcar, 2000);
 }
-
-app.disable("x-powered-by");
-
-// app.use("/", (req, res, next) => {
-//   knex("streetcars")
-//     .then((result) => {
-
-//       res.send(result[0].location);
-//     })
-//     .catch((err) => {
-//       next(err);
-//     });
-// });
 
 app.use((err, req, res, next) => {
   console.log(err);

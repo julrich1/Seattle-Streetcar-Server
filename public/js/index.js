@@ -11,7 +11,7 @@ let activeWindowTimer; // Used to update stop info windows if they are kept open
 let route = "FHS";
 
 function initRoute() {
-  $.ajax({ url: `http://localhost:8000/routes/1` }).done(function(data) {
+  $.ajax({ url: `/routes/1` }).done(function(data) {
 
     let routeCoords = [];
 
@@ -139,66 +139,80 @@ function isFavorited(stopId) {
   return false;
 }
 
-function getStreetCarDataInitial() {
-  $.ajax({ url: `http://localhost:8000/streetcars/1` }).done(function(data) {
+function deleteStreetcarMarker(index) {
+  markers[index].setMap(null);
+
+  markers.splice(index, 1);
+}
+
+function createStreetcarMarker(vehicle) {
+console.log("Converstion Test: ", (new Date() - new Date(vehicle.updated_at)) / 1000, " seconds");
+
+  markers.push(new google.maps.Marker(
+    {
+      map: map,
+      label: "",
+      duration: 2000,
+      easing: "easeInQuad",
+      speedMph: convertKmHrToMph(vehicle.speedKmHr),
+      markerLastTime: vehicle.updated_at,
+      zIndex: 10,
+      optimized: false,
+      icon: {
+        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+        scale: 5,
+        rotation: 0,
+        fillOpacity: 1
+      }
+    }));
+
+  const currentEle = markers.length - 1;
+
+  markers[currentEle].set("id", vehicle.streetcar_id);
+  
+  const fillColor = getIconColor();
+
+  markers[currentEle].icon.strokeColor = fillColor;
+  markers[currentEle].icon.fillColor = fillColor;
+
+  markers[currentEle].set("infoWindow", new google.maps.InfoWindow({
+    content: ""
+  }));
+
+  markers[currentEle].addListener("click", function() {
+    closeAllInfoWindows();
+    this.infoWindow.open(map, this);
+  });
+
+  console.log(vehicle);
+  setStreetCarRotation(markers[currentEle], vehicle.heading);
+  setStreetCarPosition(markers[currentEle], {lat: Number(vehicle.x), lng: Number(vehicle.y)});
+
+  updateStreetcarInfoWindow(markers[currentEle]);
+
+  return markers[currentEle];
+}
+
+function initializeStreetcars() {
+  $.ajax({ url: `/streetcars/1` }).done(function(data) {
 
     // lastTime = data.lastTime.time;
 
-    let iterator = 0;
+    // let iterator = 0;
 
     for (const vehicle of data) {
-      markers[iterator] = new google.maps.Marker(
-        {
-          map: map,
-          label: "",
-          duration: 2000,
-          easing: "easeInQuad",
-          speedMph: convertKmHrToMph(vehicle.speedKmHr),
-          markerLastTime: vehicle.secsSinceReport,
-          zIndex: 10,
-          optimized: false,
-          icon: {
-            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: 5,
-            rotation: 0,
-            fillOpacity: 1
-          }
-        });
-
-      markers[iterator].set("id", vehicle.streetcar_id);
-      
-      const fillColor = getIconColor();
-
-      markers[iterator].icon.strokeColor = fillColor;
-      markers[iterator].icon.fillColor = fillColor;
-
-      markers[iterator].set("infoWindow", new google.maps.InfoWindow({
-        content: ""
-      }));
-
-      markers[iterator].addListener("click", function() {
-        closeAllInfoWindows();
-        this.infoWindow.open(map, this);
-      });
-
-      console.log(vehicle);
-      setStreetCarRotation(markers[iterator], vehicle.heading);
-      setStreetCarPosition(markers[iterator], {lat: Number(vehicle.x), lng: Number(vehicle.y)});
-
-      updateStreetcarInfoWindow(markers[iterator]);
-
-      iterator++;
+      createStreetcarMarker(vehicle);
     }
 
-    setInterval(getStreetCarData, UPDATE_INTERVAL);
+    setInterval(updateStreetcars, UPDATE_INTERVAL);
     setInterval(updateIntervals, 1000);
   }).fail(function(data) {
     console.error("There was an error retrieving data from the API.", data);
   });
 }
 
-function getStreetCarData() {
-  $.ajax({ url: `http://localhost:8000/streetcars/1` }).done(function(data) {
+function updateStreetcars() {
+  $.ajax({ url: `/streetcars/1` }).done(function(data) {
 
     if (!data) {
       return;
@@ -213,18 +227,22 @@ function getStreetCarData() {
 
     for (const vehicle of data) {
       const coords = {lat: Number(vehicle.x), lng: Number(vehicle.y)};
-      const marker = findMarkerById(vehicle.streetcar_id);
+      let marker = findMarkerById(vehicle.streetcar_id);
 
       if (!marker) {
         console.error("Couldn't find marker!", vehicle.streetcar_id);
+        marker = createStreetcarMarker(vehicle);
+        console.log("New one created");
       }
-      else {
-        marker.set("markerLastTime", vehicle.secsSinceReport);
-        marker.set("speedMph", convertKmHrToMph(vehicle.speedKmHr));
-        setStreetCarRotation(marker, vehicle.heading);
-        setStreetCarPosition(marker, coords);
-      }
+
+      marker.set("markerLastTime", vehicle.updated_at);
+      marker.set("speedMph", convertKmHrToMph(vehicle.speedKmHr));
+      setStreetCarRotation(marker, vehicle.heading);
+      setStreetCarPosition(marker, coords);
     }
+
+    checkForOldData();
+
   }).fail(function(data, status, error) {
     console.error("There was an error retrieving data from the API.", data, status, error);
   });
@@ -234,21 +252,38 @@ function convertKmHrToMph(speed) {
   return speed === undefined ? "N/A" : Math.round(speed * 0.62137119223733) + " Mph";
 }
 
+function checkForOldData() {
+  markers.forEach((marker, i) => {
+    if ((new Date() - new Date(marker.markerLastTime)) / 1000 > 300) {
+      console.log("OLD MARKER!!!", marker.id);
+      deleteStreetcarMarker(i);
+    } 
+    else {
+      console.log("Not outdated: ", (new Date() - new Date(marker.markerLastTime)) / 1000, " seconds");
+    }
+  });
+}
+
 // Updates the time for each info window
 function updateIntervals() {
-  for (const marker of markers) {
-    const markerLastTime = Number(marker.get("markerLastTime"));
-    marker.set("markerLastTime", markerLastTime + 1);
-    updateAllStreetcarInfoWindows();
-  }
+  // for (const marker of markers) {
+    // const markerLastTime = new Date(marker.get("markerLastTime"));
+    // console.log(new Date(markerLastTime.setSeconds(markerLastTime.getSeconds())), new Date(markerLastTime.setSeconds(markerLastTime.getSeconds() + 1)));
+    // marker.set("markerLastTime", new Date(markerLastTime.setSeconds(markerLastTime.getSeconds() + 1)));
+  updateAllStreetcarInfoWindows();
+  // }
 }
 
 function updateStreetcarInfoWindow(marker) {
   const lat = marker.getPosition().lat().toFixed(6);
   const lng = marker.getPosition().lng().toFixed(6);
 
+  // console.log("LAST UPDATED: ", (new Date() - new Date(marker.markerLastTime)) / 1000);
+
+  const secsAgo = Math.round((new Date() - new Date(marker.markerLastTime)) / 1000);
+  
   const contentString = `<ul>
-    <li>Last Updated: ${marker.markerLastTime} seconds ago</li>
+    <li>Last Updated: ${secsAgo} seconds ago</li>
     <li>Last Speed: ${marker.speedMph}</li>
     <li>Location: ${lat}, ${lng}</li>
     </ul>`;
@@ -474,6 +509,6 @@ getParams();
 $(".button-collapse").sideNav();
 initMap();
 initRoute();
-getStreetCarDataInitial();
+initializeStreetcars();
 getFavorites();
 setInterval(getFavoritesArrivalTimes, FAVORITES_UPDATE_INTERVAL);
