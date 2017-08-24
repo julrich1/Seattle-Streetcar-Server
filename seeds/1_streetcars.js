@@ -5,7 +5,7 @@ exports.seed = function(knex, Promise) {
     .then(function () {
       // Inserts seed entries
       return knex("streetcars").insert([
-        {id: 1, streetcar_id: 1, route_id: 1, location: knex.raw("point(47.601659,-122.3148)")}
+        {id: 1, streetcar_id: 1, route_id: 1, location: knex.raw("ST_GeographyFromText('SRID=4326;POINT(-122.3148 47.601659)')")}
       ]);
     })
     .then(() => {

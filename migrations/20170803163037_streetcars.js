@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
     table.increments();
     table.specificType("streetcar_id", "smallint").notNullable();
     table.specificType("route_id", "smallint").notNullable();
-    table.specificType("location", "point");
+    table.specificType("location", "geography(POINT, 4326)");
     table.specificType("heading", "smallint");
     table.boolean("predictable");
     table.timestamps(true, true);

@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 
 const request = require("request");
 
@@ -18,15 +19,18 @@ const ROUTE_ID = 1; // Associate to "FHS"
 app.use(morgan("tiny"));
 app.use(bodyParser.json());
 
-app.all("*", function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With");
-  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
-  return next();
-});
+// app.all("*", function(req, res, next) {
+//   // res.header("Access-Control-Allow-Origin", "*");
+//   // res.header("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With");
+//   // res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+//   return next();
+// });
+
 
 app.use(streetcarsRouter);
 app.use(routesRouter);
+
+app.use("/", express.static(path.join(__dirname, "public")));
 
 let lastTime = 0;
 
@@ -66,9 +70,10 @@ function convertVehicles(vehicles) {
     // console.log(vehicle);
     newVehicle.streetcar_id = vehicle.id;
     newVehicle.route_id = ROUTE_ID;
-    newVehicle.location = knex.raw(`point(${vehicle.lat}, ${vehicle.lon})`);
+    newVehicle.location = knex.raw(`ST_GeographyFromText('SRID=4326;POINT(${vehicle.lon} ${vehicle.lat})')`);
     newVehicle.heading = vehicle.heading;
     newVehicle.predictable = vehicle.predictable;
+    // knex.raw("ST_GeographyFromText('SRID=4326;POINT(-122.3148 47.601659)')")
 
     result.push(newVehicle);
   }

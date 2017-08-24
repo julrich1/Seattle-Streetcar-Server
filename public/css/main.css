@@ -1,0 +1,149 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+#map {
+  position:fixed !important;
+  position:absolute;
+  top:0;
+  right:0;
+  bottom:0;
+  left:300px;
+}
+
+#header {
+  display: none;
+  background-color: #e9e9e9;
+}
+
+@media only screen and (max-width : 992px) {
+  #map {
+    left: 0;
+    top: 25px;
+  }
+
+  #header {
+    display: block;
+  }
+ }
+
+ .collapsible-body {
+	 padding-left: 20px !important;
+	 background-color: #e9e9e9 !important;
+ }
+
+ .pointer {
+	 cursor: pointer;
+ }
+
+.favorites-header {
+	display: flex;
+	align-items: center;
+	padding-left: 20px;
+	font-size: 24px;
+	border-bottom: 1px solid black;
+}
+
+.favorites-header p {
+	padding-left: 10px;
+}
+
+.favorite-icon {
+	font-size: 20px !important;
+}
+
+.route-icon {
+	margin-right: 10px !important;
+}
+
+.route-link {
+	padding-left: 10px !important;
+	padding-right: 10px !important;
+} 
+
+.stop-header {
+	display: flex;
+	align-items: center;
+}
+
+#slide-out {
+	background-color: #e9e9e9;
+}
+
+#twitter-widget {
+	border-top: 1px solid black;
+}
+
+h3 {
+	font-size: 18px;
+	font-weight: bold;
+	display: inline-block;
+}
+
+h4 {
+	font-size: 16px;
+	font-weight: bolder;
+}
+
+ol {
+	list-style: circle;
+	margin-left: 20px;
+}
+
+.fav-star {
+	padding-left: 5px;
+}
+
+.arrival-info {
+	font-size: 14px;
+}
+
+.route-button {
+	padding-top: 20px;
+	padding-bottom: 10px;
+}
