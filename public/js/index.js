@@ -158,6 +158,7 @@ console.log("Converstion Test: ", (new Date() - new Date(vehicle.updated_at)) / 
       easing: "easeInQuad",
       speedMph: convertKmHrToMph(vehicle.speedkmhr),
       markerLastTime: vehicle.updated_at,
+      predictable: vehicle.predictable,
       zIndex: 10,
       optimized: false,
       icon: {
@@ -172,10 +173,11 @@ console.log("Converstion Test: ", (new Date() - new Date(vehicle.updated_at)) / 
 
   markers[currentEle].set("id", vehicle.streetcar_id);
   
-  const fillColor = getIconColor();
+  setColor(markers[currentEle]);
+  // const fillColor = getIconColor(markers[currentEle].predictable);
 
-  markers[currentEle].icon.strokeColor = fillColor;
-  markers[currentEle].icon.fillColor = fillColor;
+  // markers[currentEle].icon.strokeColor = fillColor;
+  // markers[currentEle].icon.fillColor = fillColor;
 
   markers[currentEle].set("infoWindow", new google.maps.InfoWindow({
     content: ""
@@ -231,6 +233,10 @@ function updateStreetcars() {
       }
 
       marker.set("markerLastTime", vehicle.updated_at);
+      marker.set("predictable", vehicle.predictable);
+      
+      setColor(marker);      
+      
       if (vehicle.speedkmhr) { marker.set("speedMph", convertKmHrToMph(vehicle.speedkmhr)); }
       setStreetCarRotation(marker, vehicle.heading);
       setStreetCarPosition(marker, coords);
@@ -324,10 +330,19 @@ function initMap() {
   });
 }
 
-function getIconColor() {
-  let fillColor = "green";
+function getIconColor(predictable) {
+  let fillColor = "red";
+
+  if (predictable) { fillColor = "green"; }
 
   return fillColor;
+}
+
+function setColor(marker) {
+  const fillColor = getIconColor(marker.predictable);
+  
+  marker.icon.strokeColor = fillColor;
+  marker.icon.fillColor = fillColor;
 }
 
 function closeAllInfoWindows() {
