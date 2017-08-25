@@ -77,6 +77,7 @@ function convertVehicles(vehicles) {
     newVehicle.location = knex.raw(`ST_GeographyFromText('SRID=4326;POINT(${vehicle.lon} ${vehicle.lat})')`);
     newVehicle.heading = vehicle.heading;
     newVehicle.predictable = vehicle.predictable;
+    newVehicle.speedkmhr = vehicle.speedKmHr;
     // knex.raw("ST_GeographyFromText('SRID=4326;POINT(-122.3148 47.601659)')")
 
     result.push(newVehicle);

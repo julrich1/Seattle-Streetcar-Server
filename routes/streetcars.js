@@ -15,7 +15,7 @@ router.get("/streetcars/:routeId", (req, res, next) => {
   // console.log(startTime.toString(), typeof startTime);
   // console.log(  knex.raw(`SELECT * FROM streetcars WHERE created_at >= '${startTime}' AND created_at <= ${knex.fn.now()}`).toString())
   // SELECT DISTINCT ON (streetcar_id) ST_AsText(location) route_id FROM streetcars ORDER BY streetcar_id, created_at DESC;
-  knex.raw(`SELECT DISTINCT ON (streetcar_id) streetcar_id, ST_X(location::geometry) AS y, ST_Y(location::geometry) AS x, route_id, heading, updated_at FROM streetcars WHERE created_at >= '${startTime}' ORDER BY streetcar_id, created_at DESC;`)
+  knex.raw(`SELECT DISTINCT ON (streetcar_id) streetcar_id, ST_X(location::geometry) AS y, ST_Y(location::geometry) AS x, route_id, heading, speedkmhr, updated_at FROM streetcars WHERE created_at >= '${startTime}' ORDER BY streetcar_id, created_at DESC;`)
     .then((result) => {
       res.send(result.rows);
     })

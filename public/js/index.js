@@ -1,6 +1,8 @@
 const UPDATE_INTERVAL = 2000; // Update interval for streetcar changes
 const STOP_UPDATE_INTERVAL = 20000; // Update interval for open info window on a stop
 const FAVORITES_UPDATE_INTERVAL = 20000; // Update interval for the favorites bar
+const INFO_WINDOW_UPDATE_INTERVAL = 1000; // Update interval for the info window times
+
 
 var map;
 let markers = [];
@@ -154,7 +156,7 @@ console.log("Converstion Test: ", (new Date() - new Date(vehicle.updated_at)) / 
       label: "",
       duration: 2000,
       easing: "easeInQuad",
-      speedMph: convertKmHrToMph(vehicle.speedKmHr),
+      speedMph: convertKmHrToMph(vehicle.speedkmhr),
       markerLastTime: vehicle.updated_at,
       zIndex: 10,
       optimized: false,
@@ -205,7 +207,7 @@ function initializeStreetcars() {
     }
 
     setInterval(updateStreetcars, UPDATE_INTERVAL);
-    setInterval(updateIntervals, 1000);
+    setInterval(updateAllStreetcarInfoWindows, INFO_WINDOW_UPDATE_INTERVAL);
   }).fail(function(data) {
     console.error("There was an error retrieving data from the API.", data);
   });
@@ -218,13 +220,6 @@ function updateStreetcars() {
       return;
     }
 
-    // If the AJAX call returns one element, convert it into an array for data consistency.
-    // if (!Array.isArray(data)) {
-    //   data.vehicle = [data.vehicle];
-    // }
-
-    // lastTime = data.lastTime.time;
-
     for (const vehicle of data) {
       const coords = {lat: Number(vehicle.x), lng: Number(vehicle.y)};
       let marker = findMarkerById(vehicle.streetcar_id);
@@ -236,7 +231,7 @@ function updateStreetcars() {
       }
 
       marker.set("markerLastTime", vehicle.updated_at);
-      marker.set("speedMph", convertKmHrToMph(vehicle.speedKmHr));
+      if (vehicle.speedkmhr) { marker.set("speedMph", convertKmHrToMph(vehicle.speedkmhr)); }
       setStreetCarRotation(marker, vehicle.heading);
       setStreetCarPosition(marker, coords);
     }
@@ -264,24 +259,15 @@ function checkForOldData() {
   });
 }
 
-// Updates the time for each info window
 function updateIntervals() {
-  // for (const marker of markers) {
-    // const markerLastTime = new Date(marker.get("markerLastTime"));
-    // console.log(new Date(markerLastTime.setSeconds(markerLastTime.getSeconds())), new Date(markerLastTime.setSeconds(markerLastTime.getSeconds() + 1)));
-    // marker.set("markerLastTime", new Date(markerLastTime.setSeconds(markerLastTime.getSeconds() + 1)));
   updateAllStreetcarInfoWindows();
-  // }
 }
 
 function updateStreetcarInfoWindow(marker) {
   const lat = marker.getPosition().lat().toFixed(6);
   const lng = marker.getPosition().lng().toFixed(6);
-
-  // console.log("LAST UPDATED: ", (new Date() - new Date(marker.markerLastTime)) / 1000);
-
   const secsAgo = Math.round((new Date() - new Date(marker.markerLastTime)) / 1000);
-  
+
   const contentString = `<ul>
     <li>Last Updated: ${secsAgo} seconds ago</li>
     <li>Last Speed: ${marker.speedMph}</li>
