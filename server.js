@@ -85,7 +85,13 @@ function convertVehicles(vehicles, routeId) {
 function getStreetcar() {
   request(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=seattle-sc&r=FHS&t=${lastTime}`, (err, res, body) => {
     if (err) { return; }
-    body = JSON.parse(body);
+
+    try {
+      body = JSON.parse(body);
+    } catch(e) {
+      console.log(`Error parsing JSON: ${e}`);
+      return;
+    }
         
     lastTime = body.lastTime.time;
     
