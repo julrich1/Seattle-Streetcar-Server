@@ -12,6 +12,7 @@ router.get("/routes/:routeId", (req, res, next) => {
   let route;
 
   if (routeId === 1) { route = "FHS"; }
+  if (routeId === 2) { route = "SLU"; }
 
   const routePath = path.join(__dirname, "../", "data", `${route}-route`);
 

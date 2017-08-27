@@ -14,8 +14,6 @@ const bodyParser = require("body-parser");
 const streetcarsRouter = require("./routes/streetcars.js");
 const routesRouter = require("./routes/routes.js");
 
-const ROUTE_ID = 1; // Associate to "FHS"
-
 app.disable("x-powered-by");
 
 app.use(morgan("tiny"));
@@ -39,6 +37,7 @@ app.use("/", express.static(path.join(__dirname, "public")));
 let lastTime = 0;
 
 updateRoutes("FHS");
+updateRoutes("SLU");
 
 //TO-DO - Make this run once per day
 // Maybe check if data changed at all before rewriting the file
@@ -49,9 +48,6 @@ function updateRoutes(route) {
     fs.writeFile(`./data/${route}-route`, body, (err) => {
       if (err) { console.log(err); }
     });
-
-    // console.log(body.route.path);
-    // console.log(body.route.path.length);
   });
 }
 
@@ -64,7 +60,7 @@ function calculateIdleTime() {
     });
 }
 
-function convertVehicles(vehicles) {
+function convertVehicles(vehicles, routeId) {
   let result = [];
 
   if (!Array.isArray(vehicles)) { vehicles = [vehicles]; }
@@ -73,7 +69,7 @@ function convertVehicles(vehicles) {
 
     // console.log(vehicle);
     newVehicle.streetcar_id = vehicle.id;
-    newVehicle.route_id = ROUTE_ID;
+    newVehicle.route_id = routeId;
     newVehicle.location = knex.raw(`ST_GeographyFromText('SRID=4326;POINT(${vehicle.lon} ${vehicle.lat})')`);
     newVehicle.heading = vehicle.heading;
     newVehicle.predictable = vehicle.predictable;
@@ -94,7 +90,28 @@ function getStreetcar() {
     lastTime = body.lastTime.time;
     
     if (body.vehicle) {
-      const vehicleData = convertVehicles(body.vehicle);
+      const vehicleData = convertVehicles(body.vehicle, 1);
+
+      console.log(`${vehicleData.length} New Results Found`);
+
+      knex("streetcars").insert(vehicleData)
+        .then((result) => {
+          
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  });
+
+  request(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=seattle-sc&r=SLU&t=${lastTime}`, (err, res, body) => {
+    if (err) { return; }
+    body = JSON.parse(body);
+        
+    lastTime = body.lastTime.time;
+    
+    if (body.vehicle) {
+      const vehicleData = convertVehicles(body.vehicle, 2);
 
       console.log(`${vehicleData.length} New Results Found`);
 

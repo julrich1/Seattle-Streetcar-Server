@@ -11,9 +11,10 @@ var favorites = {FHS:[], SLU:[]};
 let lastTime = 0;
 let activeWindowTimer; // Used to update stop info windows if they are kept open
 let route = "FHS";
+let routeId = 1;
 
 function initRoute() {
-  $.ajax({ url: `/routes/1` }).done(function(data) {
+  $.ajax({ url: `/routes/${routeId}` }).done(function(data) {
 
     let routeCoords = [];
 
@@ -148,8 +149,6 @@ function deleteStreetcarMarker(index) {
 }
 
 function createStreetcarMarker(vehicle) {
-console.log("Converstion Test: ", (new Date() - new Date(vehicle.updated_at)) / 1000, " seconds");
-
   markers.push(new google.maps.Marker(
     {
       map: map,
@@ -198,7 +197,7 @@ console.log("Converstion Test: ", (new Date() - new Date(vehicle.updated_at)) / 
 }
 
 function initializeStreetcars() {
-  $.ajax({ url: `/streetcars/1` }).done(function(data) {
+  $.ajax({ url: `/streetcars/${routeId}` }).done(function(data) {
 
     // lastTime = data.lastTime.time;
 
@@ -216,7 +215,7 @@ function initializeStreetcars() {
 }
 
 function updateStreetcars() {
-  $.ajax({ url: `/streetcars/1` }).done(function(data) {
+  $.ajax({ url: `/streetcars/${routeId}` }).done(function(data) {
 
     if (!data) {
       return;
@@ -263,10 +262,6 @@ function checkForOldData() {
       console.log("Not outdated: ", (new Date() - new Date(marker.markerLastTime)) / 1000, " seconds");
     }
   });
-}
-
-function updateIntervals() {
-  updateAllStreetcarInfoWindows();
 }
 
 function updateStreetcarInfoWindow(marker) {
@@ -498,9 +493,11 @@ function getParams() {
     switch (queryString[1]) {
     case "FHS":
       route = "FHS";
+      routeId = 1;
       break;
     case "SLU":
       route = "SLU";
+      routeId = 2;
       break;
     }
   }
