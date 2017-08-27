@@ -141,8 +141,8 @@ app.use((err, req, res, next) => {
   res.send(err);
 });
 
-app.listen(8000, () => {
-  console.log("Listening on port 8000");
+app.listen(3002, () => {
+  console.log("Listening on port 3002");
 });
 
 createTimers();
