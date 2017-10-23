@@ -3,8 +3,7 @@ const STOP_UPDATE_INTERVAL = 20000; // Update interval for open info window on a
 const FAVORITES_UPDATE_INTERVAL = 20000; // Update interval for the favorites bar
 const INFO_WINDOW_UPDATE_INTERVAL = 1000; // Update interval for the info window times
 
-
-var map;
+let map;
 let markers = [];
 let stops = [];
 var favorites = {FHS:[], SLU:[]};
@@ -14,7 +13,7 @@ let route = "FHS";
 let routeId = 1;
 
 function initRoute() {
-  $.ajax({ url: `/routes/${routeId}` }).done(function(data) {
+  $.ajax({ url: `/api/routes/${routeId}` }).done(function(data) {
 
     let routeCoords = [];
 
@@ -184,6 +183,7 @@ function createStreetcarMarker(vehicle) {
 
   markers[currentEle].addListener("click", function() {
     closeAllInfoWindows();
+    console.log(this.id);
     this.infoWindow.open(map, this);
   });
 
@@ -197,7 +197,7 @@ function createStreetcarMarker(vehicle) {
 }
 
 function initializeStreetcars() {
-  $.ajax({ url: `/streetcars/${routeId}` }).done(function(data) {
+  $.ajax({ url: `/api/streetcars/${routeId}` }).done(function(data) {
 
     // lastTime = data.lastTime.time;
 
@@ -215,7 +215,7 @@ function initializeStreetcars() {
 }
 
 function updateStreetcars() {
-  $.ajax({ url: `/streetcars/${routeId}` }).done(function(data) {
+  $.ajax({ url: `/api/streetcars/${routeId}` }).done(function(data) {
 
     if (!data) {
       return;
