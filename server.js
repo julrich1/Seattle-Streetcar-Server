@@ -37,7 +37,6 @@ app.use(API_PATH, streetcarsRoute);
 app.use(API_PATH, routesRoute);
 app.get(API_PATH + "idletimes", (req, res) => {
   calculateIdleTime().then((result) => {
-    console.log("FINAL RESULT: ",result);
     res.send(result);
   });
   
@@ -83,7 +82,7 @@ function calculateIdleTime() {
       const streetcars = [];
 
       for (const set of result) {
-        streetcars.push({streetcar_id: set.rows[0].streetcar_id, lastMove: moment(set.rows[0].created_at).fromNow()});
+        streetcars.push({streetcar_id: set.rows[0].streetcar_id, lastMove: moment(set.rows[0].created_at).fromNow(true)});
       }
       // console.log("Result right before return: ", streetcars);
       console.log(streetcars.length);
@@ -91,9 +90,8 @@ function calculateIdleTime() {
     });
 }
 
-function queryLocations(streetcar) {
-  // console.log(streetcar);
-  // const startTime = moment().subtract(15, "minutes").format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ");
+function queryLocations(streetcar) {  
+  const startTime = moment().subtract(60, "minutes").format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ");
   
   return knex.raw(`
     SELECT location, created_at, streetcar_id
@@ -103,8 +101,10 @@ function queryLocations(streetcar) {
       FROM streetcars
       WHERE ST_DWithin(location, ST_GeogFromText('SRID=4326;POINT(${streetcar.y} ${streetcar.x})'), 40)
       AND streetcar_id = ${streetcar.streetcar_id}
+      AND created_at >= '${startTime}'
     )
     AND streetcar_id = ${streetcar.streetcar_id}
+    AND created_at >= '${startTime}'
     ORDER BY created_at DESC
     LIMIT 1;
   `)
