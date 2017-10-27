@@ -157,6 +157,7 @@ function createStreetcarMarker(vehicle) {
       speedMph: convertKmHrToMph(vehicle.speedkmhr),
       markerLastTime: vehicle.updated_at,
       predictable: vehicle.predictable,
+      idle: vehicle.idle,
       zIndex: 10,
       optimized: false,
       icon: {
@@ -233,6 +234,7 @@ function updateStreetcars() {
 
       marker.set("markerLastTime", vehicle.updated_at);
       marker.set("predictable", vehicle.predictable);
+      marker.set("idle", vehicle.idle);
       
       setColor(marker);      
       
@@ -271,6 +273,7 @@ function updateStreetcarInfoWindow(marker) {
 
   const contentString = `<ul>
     <li>Last Updated: ${secsAgo} seconds ago</li>
+    <li>Idle time: ${marker.idle}</li>    
     <li>Last Speed: ${marker.speedMph}</li>
     <li>Location: ${lat}, ${lng}</li>
     </ul>`;

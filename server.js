@@ -61,78 +61,6 @@ function updateRoutes(route) {
   });
 }
 
-function calculateIdleTime() {
-  const startTime = moment().subtract(5, "minutes").format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ");
-  
-  //knex.raw("SELECT * FROM streetcars WHERE created_at >= NOW() - INTERVAL '20 minutes' AND created_at <= NOW() ORDER BY streetcar_id, created_at DESC;")
-  return knex.raw(`
-    SELECT DISTINCT ON (streetcar_id) streetcar_id, ST_X(location::geometry) AS y, ST_Y(location::geometry) AS x, route_id, heading, speedkmhr, predictable, updated_at
-    FROM streetcars WHERE created_at >= '${startTime}'
-    AND route_id = ${1}
-    ORDER BY streetcar_id, created_at DESC;`)
-    .then((result) => {
-      const promises = [];
-      // console.log(result);
-      for (const streetcar of result.rows) {
-        promises.push(queryLocations(streetcar));
-      }
-      return Promise.all(promises);
-    })
-    .then((result) => {
-      const streetcars = [];
-
-      for (const set of result) {
-        streetcars.push({streetcar_id: set.rows[0].streetcar_id, lastMove: moment(set.rows[0].created_at).fromNow(true)});
-      }
-      // console.log("Result right before return: ", streetcars);
-      console.log(streetcars.length);
-      return streetcars;
-    });
-}
-
-function queryLocations(streetcar) {  
-  const startTime = moment().subtract(60, "minutes").format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ");
-  
-  return knex.raw(`
-    SELECT location, created_at, streetcar_id
-    FROM streetcars
-    WHERE location NOT IN (
-      SELECT location
-      FROM streetcars
-      WHERE ST_DWithin(location, ST_GeogFromText('SRID=4326;POINT(${streetcar.y} ${streetcar.x})'), 40)
-      AND streetcar_id = ${streetcar.streetcar_id}
-      AND created_at >= '${startTime}'
-    )
-    AND streetcar_id = ${streetcar.streetcar_id}
-    AND created_at >= '${startTime}'
-    ORDER BY created_at DESC
-    LIMIT 1;
-  `)
-    .then((result) => {
-      console.log(result.rows[0].streetcar_id, moment(result.rows[0].created_at).toString(), streetcar.y, streetcar.x);
-      return knex.raw(`
-        SELECT location, created_at, streetcar_id
-        FROM streetcars
-        WHERE ST_DWithin(location, ST_GeogFromText('SRID=4326;POINT(${streetcar.y} ${streetcar.x})'), 40)
-        AND created_at > '${moment(result.rows[0].created_at).format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ")}'
-        AND streetcar_id = ${streetcar.streetcar_id}
-        ORDER BY created_at ASC
-        LIMIT 1;
-      `);
-    })
-    .then((result) => {
-      // console.log(result);
-      return result;
-    });
-  // return knex.raw(`
-  //   SELECT DISTINCT ON (streetcar_id) streetcar_id, created_at 
-  //   FROM streetcars WHERE ST_DWithin(location, ST_GeogFromText('SRID=4326;POINT(${streetcar.y} ${streetcar.x})'), 40) 
-  //   AND streetcar_id = ${streetcar.streetcar_id} 
-  //   AND created_at >= '${startTime}'
-  //   AND route_id = ${1}
-  //   ORDER BY streetcar_id, created_at;`);
-}
-
 function convertVehicles(vehicles, routeId) {
   let result = [];
 
@@ -219,8 +147,10 @@ app.use((err, req, res, next) => {
   res.send(err);
 });
 
-app.listen(80, () => {
-  console.log("Listening on port 80");
+const port = process.env.PORT || 3002;
+
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });
 
 createTimers();
