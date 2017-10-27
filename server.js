@@ -185,8 +185,13 @@ function getStreetcar() {
 
   request(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=seattle-sc&r=SLU&t=${lastTime}`, (err, res, body) => {
     if (err) { return; }
-    body = JSON.parse(body);
-        
+
+    try {
+      body = JSON.parse(body);
+    } catch(e) {
+      console.log(`Error parsing JSON: ${e}`);
+      return;
+    }        
     lastTime = body.lastTime.time;
     
     if (body.vehicle) {
@@ -214,8 +219,8 @@ app.use((err, req, res, next) => {
   res.send(err);
 });
 
-app.listen(3002, () => {
-  console.log("Listening on port 3002");
+app.listen(80, () => {
+  console.log("Listening on port 80");
 });
 
 createTimers();
