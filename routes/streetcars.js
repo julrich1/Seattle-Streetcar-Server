@@ -38,7 +38,8 @@ router.get("/streetcars/:routeId", (req, res, next) => {
     })
     .catch((err) => {
       console.log("Error fetching streetcars", err);
-      next(err);
+      res.send(streetcars);
+      // next(err);
     });
 });
 
@@ -62,7 +63,7 @@ function getIdleTimes(streetcar) {
   `)
     .then((result) => {
       if (!result.rows[0]) { return []; }
-      
+
       return knex.raw(`
         SELECT location, created_at, streetcar_id
         FROM streetcars
