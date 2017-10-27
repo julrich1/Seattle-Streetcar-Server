@@ -61,6 +61,8 @@ function getIdleTimes(streetcar) {
     LIMIT 1;
   `)
     .then((result) => {
+      if (!result.rows[0]) { return []; }
+      
       return knex.raw(`
         SELECT location, created_at, streetcar_id
         FROM streetcars
