@@ -10,8 +10,6 @@ const knex = require("./knex");
 
 const morgan = require("morgan");
 
-const moment = require("moment");
-
 const bodyParser = require("body-parser");
 const streetcarsRoute = require("./routes/streetcars.js");
 const routesRoute = require("./routes/routes.js");
@@ -35,12 +33,6 @@ app.use(bodyParser.json());
 
 app.use(API_PATH, streetcarsRoute);
 app.use(API_PATH, routesRoute);
-app.get(API_PATH + "idletimes", (req, res) => {
-  calculateIdleTime().then((result) => {
-    res.send(result);
-  });
-  
-}); 
 
 app.use("/", express.static(path.join(__dirname, "public")));
 
@@ -68,7 +60,6 @@ function convertVehicles(vehicles, routeId) {
   for (const vehicle of vehicles) {
     let newVehicle = {};
 
-    // console.log(vehicle);
     newVehicle.streetcar_id = vehicle.id;
     newVehicle.route_id = routeId;
     newVehicle.location = knex.raw(`ST_GeographyFromText('SRID=4326;POINT(${vehicle.lon} ${vehicle.lat})')`);
