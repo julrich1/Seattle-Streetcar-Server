@@ -5,7 +5,7 @@ module.exports = {
   },
   production: {
     connection: {
-      database: "streetcar_dev",
+      database: "streetcar",
       port: 5433,
       user: 'root',
       password: ''

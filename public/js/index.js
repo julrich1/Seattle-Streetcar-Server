@@ -26,7 +26,7 @@ function initRoute() {
         path: routeCoords,
         geodesic: true,
         strokeColor: "black",
-        strokeOpacity: 0.7,
+        strokeOpacity: 0.5,
         strokeWeight: 3
       });
 
@@ -53,8 +53,8 @@ function initStops(stopData) {
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           scale: 4,
-          strokeColor: "blue",
-          fillColor: "blue",
+          strokeColor: "#2a4f64",
+          fillColor: "#2a4f64",
           fillOpacity: 1
         }
       });
@@ -184,11 +184,9 @@ function createStreetcarMarker(vehicle) {
 
   markers[currentEle].addListener("click", function() {
     closeAllInfoWindows();
-    console.log(this.id);
     this.infoWindow.open(map, this);
   });
 
-  console.log(vehicle);
   setStreetCarRotation(markers[currentEle], vehicle.heading);
   setStreetCarPosition(markers[currentEle], {lat: Number(vehicle.x), lng: Number(vehicle.y)});
 
@@ -227,9 +225,7 @@ function updateStreetcars() {
       let marker = findMarkerById(vehicle.streetcar_id);
 
       if (!marker) {
-        console.error("Couldn't find marker!", vehicle.streetcar_id);
         marker = createStreetcarMarker(vehicle);
-        console.log("New one created");
       }
 
       marker.set("markerLastTime", vehicle.updated_at);
@@ -257,12 +253,8 @@ function convertKmHrToMph(speed) {
 function checkForOldData() {
   markers.forEach((marker, i) => {
     if ((new Date() - new Date(marker.markerLastTime)) / 1000 > 300) {
-      console.log("OLD MARKER!!!", marker.id);
       deleteStreetcarMarker(i);
     } 
-    else {
-      console.log("Not outdated: ", (new Date() - new Date(marker.markerLastTime)) / 1000, " seconds");
-    }
   });
 }
 
@@ -331,7 +323,7 @@ function initMap() {
 function getIconColor(predictable) {
   let fillColor = "red";
 
-  if (predictable) { fillColor = "green"; }
+  if (predictable) { fillColor = "#276f92"; }
 
   return fillColor;
 }

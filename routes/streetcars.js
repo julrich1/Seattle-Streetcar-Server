@@ -14,7 +14,6 @@ router.get("/streetcars/:routeId", (req, res, next) => {
 
   let streetcars = [];
 
-  // SELECT DISTINCT ON (streetcar_id) ST_AsText(location) route_id FROM streetcars ORDER BY streetcar_id, created_at DESC;
   knex.raw(`SELECT DISTINCT ON (streetcar_id) streetcar_id, ST_X(location::geometry) AS y, ST_Y(location::geometry) AS x, route_id, heading, speedkmhr, predictable, updated_at FROM streetcars WHERE created_at >= '${startTime}' AND route_id = ${routeId} ORDER BY streetcar_id, created_at DESC;`)
     .then((result) => {
       const promises = [];      
@@ -22,6 +21,7 @@ router.get("/streetcars/:routeId", (req, res, next) => {
       streetcars = result.rows;
 
       for (const streetcar of result.rows) {
+        streetcar.idle = "unknown";
         promises.push(getIdleTimes(streetcar));
       }
       return Promise.all(promises);
@@ -75,6 +75,8 @@ function getIdleTimes(streetcar) {
       `);
     })
     .then((result) => {
+      if (!result.rows) { return []; }
+
       return result.rows[0];
     })
     .catch((err) => {
