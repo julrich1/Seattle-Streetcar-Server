@@ -5,16 +5,33 @@ const knex = require("../knex");
 
 const moment = require("moment");
 
+const streetcarCache = { fhs: [], slu: [] };
+
+setInterval(() => { cacheStreetcars(1).then((result) => { streetcarCache.fhs = result; }); }, 2000);
+setInterval(() => { cacheStreetcars(2).then((result) => { streetcarCache.slu = result; }); }, 2000);
+
 router.get("/streetcars/:routeId", (req, res, next) => {
   const routeId = parseInt(req.params.routeId);
-
+  
   if (!routeId || isNaN(routeId)) { return next("No route ID specified"); }
 
+  if (routeId === 1) {
+    res.send(streetcarCache.fhs);
+  }
+  else if (routeId === 2) {
+    res.send(streetcarCache.slu);
+  }
+  else {
+    res.send("Unknown route");
+  }
+});
+
+function cacheStreetcars(routeId) {
   const startTime = moment().subtract(5, "minutes").format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ");
 
   let streetcars = [];
 
-  knex.raw(`SELECT DISTINCT ON (streetcar_id) streetcar_id, ST_X(location::geometry) AS y, ST_Y(location::geometry) AS x, route_id, heading, speedkmhr, predictable, updated_at FROM streetcars WHERE created_at >= '${startTime}' AND route_id = ${routeId} ORDER BY streetcar_id, created_at DESC;`)
+  return knex.raw(`SELECT DISTINCT ON (streetcar_id) streetcar_id, ST_X(location::geometry) AS y, ST_Y(location::geometry) AS x, route_id, heading, speedkmhr, predictable, updated_at FROM streetcars WHERE created_at >= '${startTime}' AND route_id = ${routeId} ORDER BY streetcar_id, created_at DESC;`)
     .then((result) => {
       const promises = [];      
 
@@ -34,14 +51,14 @@ router.get("/streetcars/:routeId", (req, res, next) => {
           }
         }
       }
-      res.send(streetcars);      
+      return streetcars;      
     })
     .catch((err) => {
       console.log("Error fetching streetcars", err);
-      res.send(streetcars);
+      // res.send(streetcars);
       // next(err);
     });
-});
+}
 
 function getIdleTimes(streetcar) {  
   const startTime = moment().subtract(60, "minutes").format("YYYY-MM-DD HH:mm:ss.SSSSSSZZ");
