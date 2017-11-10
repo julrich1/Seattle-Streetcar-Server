@@ -81,7 +81,7 @@ function initStops(stopData) {
 }
 
 function getArrivalTime(stop) {
-  $.ajax({ url: `http://webservices.nextbus.com/service/publicJSONFeed?command=predictions&a=seattle-sc&r=${route}&s=${stop.stopId}` }).done(function(data) {
+  $.ajax({ url: `/api/routes/${routeId}/arrivals/${stop.stopId}` }).done(function(data) {
     // If an error is returned - Can happen when a stop is at the end of the line and contains no arrival info.
     if (data.Error) { return; }
 
@@ -92,8 +92,8 @@ function getArrivalTime(stop) {
     contentString += "<h4>Arrivals:</h4>";
     contentString += "<ol class=\"arrival-info\">";
 
-    for (const arrivalTime of data.predictions.direction.prediction) {
-      contentString += `<li>${arrivalTime.minutes} mins</li>`;
+    for (const arrivalTime of data[0].arrivals) {
+      contentString += `<li>${arrivalTime} mins</li>`;
     }
 
     contentString += "</ul>";
@@ -388,20 +388,16 @@ function getFavoritesArrivalTimes() {
 
   const queryString = getFavoritesQueryString();
 
-  $.ajax({ url: `http://webservices.nextbus.com/service/publicJSONFeed?command=predictionsForMultiStops&a=seattle-sc${queryString}` }).done(function(data) {
-
-    // If the AJAX call returns one element, convert it into an array for data consistency.
-    if (!Array.isArray(data.predictions)) {
-      data.predictions = [data.predictions];
-    }
+  $.ajax({ url: `/api/routes/${routeId}/arrivals/${queryString}` }).done(function(data) {
 
     let arrivalTime = "Arriving in ";
     let stopTag = "";
 
-    for (const predictions of data.predictions) {
-      stopTag = predictions.stopTag;
-      for (const time of predictions.direction.prediction) {
-        arrivalTime += `${time.minutes}, `;
+    for (const predictions of data) {
+      stopTag = predictions.stopId;
+
+      for (const time of predictions.arrivals) {
+        arrivalTime += `${time}, `;
       }
       arrivalTime = arrivalTime.slice(0, arrivalTime.length-2);
       arrivalTime += " mins";
@@ -433,7 +429,7 @@ function getFavoritesQueryString() {
   let queryString = "";
 
   for (const favorite of favorites[route]) {
-    queryString += `&stops=${route}|${favorite.stopId}`;
+    queryString += `${favorite.stopId},`;
   }
 
   return queryString;
@@ -441,7 +437,7 @@ function getFavoritesQueryString() {
 
 function addArrivalTime(stopTag, arrivalTimes) {
   for (const favorite of favorites[route]) {
-    if (favorite.stopId === stopTag) {
+    if (favorite.stopId == stopTag) {
       favorite.arrivalTimes = arrivalTimes;
     }
   }
