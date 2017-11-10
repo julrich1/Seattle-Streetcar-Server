@@ -45,7 +45,7 @@ function cacheStreetcars(routeId) {
     })
     .then((result) => {
       for (const set of result) {
-        if (set.streetcar_id) {
+        if (set) {
           for (const streetcar of streetcars) {
             if (set.streetcar_id === streetcar.streetcar_id) {
               streetcar.idle = moment(set.created_at).fromNow(true);

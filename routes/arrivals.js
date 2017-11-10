@@ -11,7 +11,6 @@ let arrivals = { slu: {}, fhs: {} };
 router.get("/routes/:routeId/arrivals/:stops", (req, res, next) => {
   const routeId = parseInt(req.params.routeId);
 
-  console.log(req.params.routeId, req.params.stops);
   const stopIds = req.params.stops.split(",");
   const result = [];
 
