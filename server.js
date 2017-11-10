@@ -6,15 +6,15 @@ const app = express();
 const morgan = require("morgan");
 
 const updateStreetcars = require("./common/updateStreetcars");
-const updateRoutes = require("./common/updateRoutes");
+
+const streetcarsRoute = require("./routes/streetcars");
+const routesRoute = require("./routes/routes");
+const arrivalsRoute = require("./routes/arrivals");
 
 const bodyParser = require("body-parser");
-const streetcarsRoute = require("./routes/streetcars.js");
-const routesRoute = require("./routes/routes.js");
 
 const API_PATH = "/api/";
-
-const port = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3002;
 
 app.disable("x-powered-by");
 
@@ -23,6 +23,7 @@ app.use(bodyParser.json());
 
 app.use(API_PATH, streetcarsRoute);
 app.use(API_PATH, routesRoute);
+app.use(API_PATH, arrivalsRoute);
 
 app.use("/", express.static(path.join(__dirname, "public")));
 
@@ -31,12 +32,9 @@ app.use((err, req, res, next) => {
   res.send(err);
 });
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
-
-updateRoutes("FHS");
-updateRoutes("SLU");
 
 function createTimers() {
   setInterval(updateStreetcars, 2000);

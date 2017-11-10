@@ -199,7 +199,6 @@ function initializeStreetcars() {
   $.ajax({ url: `/api/streetcars/${routeId}` }).done(function(data) {
 
     // lastTime = data.lastTime.time;
-
     // let iterator = 0;
 
     for (const vehicle of data) {
