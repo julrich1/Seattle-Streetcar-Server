@@ -45,9 +45,11 @@ function cacheStreetcars(routeId) {
     })
     .then((result) => {
       for (const set of result) {
-        for (const streetcar of streetcars) {
-          if (set.streetcar_id === streetcar.streetcar_id) {
-            streetcar.idle = moment(set.created_at).fromNow(true);
+        if (set.streetcar_id) {
+          for (const streetcar of streetcars) {
+            if (set.streetcar_id === streetcar.streetcar_id) {
+              streetcar.idle = moment(set.created_at).fromNow(true);
+            }
           }
         }
       }
