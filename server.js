@@ -5,8 +5,6 @@ const app = express();
 
 const morgan = require("morgan");
 
-const updateStreetcars = require("./common/updateStreetcars");
-
 const streetcarsRoute = require("./routes/streetcars");
 const routesRoute = require("./routes/routes");
 const arrivalsRoute = require("./routes/arrivals");
@@ -35,9 +33,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
-
-function createTimers() {
-  setInterval(updateStreetcars, 2000);
-}
-
-createTimers();

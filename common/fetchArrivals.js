@@ -13,29 +13,44 @@ function fetchArrivals(stops) {
     queryString += `&stops=${route}|${stop}`;
   }
 
-  console.log("Query string is: ", queryString);
-
   return new Promise((resolve, reject) => {
     request(queryString, (err, res, body) => {
       if (err) { return reject(); }
 
-      const jsonObj = JSON.parse(body);
+      let jsonObj;
+
+      try {
+        jsonObj = JSON.parse(body);
+      }
+      catch (e) {
+        console.log("There was an error parsing arrivals JSON");
+        return;
+      }
+      
       const result = { slu: {}, fhs: {} };
       let routeTag = "";
       let stopTag;
 
-      for (const prediction of jsonObj.predictions) {
-        routeTag = prediction.routeTag.toLowerCase();
-        stopTag = parseInt(prediction.stopTag);
-        
-        result[routeTag][stopTag] = [];
-        
-        for (const stopPrediction of prediction.direction.prediction) {
-          result[routeTag][stopTag].push(stopPrediction.minutes);
+      if (jsonObj.predictions) {
+        for (const prediction of jsonObj.predictions) {
+          routeTag = prediction.routeTag.toLowerCase();
+          stopTag = parseInt(prediction.stopTag);
+          
+          result[routeTag][stopTag] = { arrivals: [], stopTitle: prediction.stopTitle, stopId: stopTag };
+          
+          if (prediction.direction) {
+            for (const stopPrediction of prediction.direction.prediction) {
+              result[routeTag][stopTag].arrivals.push(stopPrediction.minutes);
+            }
+          }
+          else {
+            result[routeTag][stopTag].arrivals.push("Unknown");
+          }
         }
-      }
 
-      console.log(result);
+        console.log("Updating arrival times");
+        resolve(result);
+      }
     });
   });
 }
