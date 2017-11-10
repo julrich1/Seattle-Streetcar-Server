@@ -2,7 +2,7 @@
 
 ## Live versions: 
   * Web: http://sc-dev.shadowline.net
-  * Android: http://sc-build.surge.sh/app-debug.apk
+  * Android: https://play.google.com/store/apps/details?id=jacob.SeattleStreetcarTracker
   * iOS: Needs to be built/signed from the repo - https://github.com/julrich1/Streetcar-iOS
   
 ## Repo Links:
