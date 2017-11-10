@@ -3,7 +3,7 @@ const STOP_UPDATE_INTERVAL = 20000; // Update interval for open info window on a
 const FAVORITES_UPDATE_INTERVAL = 20000; // Update interval for the favorites bar
 const INFO_WINDOW_UPDATE_INTERVAL = 1000; // Update interval for the info window times
 
-let map;
+var map;
 let markers = [];
 let stops = [];
 var favorites = {FHS:[], SLU:[]};
