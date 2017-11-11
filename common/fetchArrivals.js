@@ -38,7 +38,7 @@ function fetchArrivals(stops) {
           
           result[routeTag][stopTag] = { arrivals: [], stopTitle: prediction.stopTitle, stopId: stopTag };
           
-          if (prediction.direction) {
+          if (prediction.direction && Array.isArray(prediction.direction.prediction)) {
             for (const stopPrediction of prediction.direction.prediction) {
               result[routeTag][stopTag].arrivals.push(stopPrediction.minutes);
             }
