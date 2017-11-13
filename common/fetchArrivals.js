@@ -44,7 +44,7 @@ function fetchArrivals(stops) {
             }
           }
           else {
-            result[routeTag][stopTag].arrivals.push("Unknown");
+            result[routeTag][stopTag].arrivals.push("unknown");
           }
         }
 
