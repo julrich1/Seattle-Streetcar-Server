@@ -1,7 +1,7 @@
 # Seattle Streetcar Tracker
 
 ## Live versions: 
-  * Web: http://sc-dev.shadowline.net
+  * Web: http://sc.shadowline.net
   * Android: https://play.google.com/store/apps/details?id=jacob.SeattleStreetcarTracker
   * iOS: Needs to be built/signed from the repo - https://github.com/julrich1/Streetcar-iOS
   
